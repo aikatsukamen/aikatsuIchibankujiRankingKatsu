@@ -5,7 +5,7 @@ const fs = require("fs");
 const logger_1 = require("./logger");
 const configModule = require("config");
 const config = configModule.util.toObject(configModule);
-config.kkt.token = process.env.NODE_KKT_TOKEN || config.kkt.token;
+config.kkt.token = config.kkt.token || process.env.NODE_KKT_TOKEN;
 if (!config.kkt.token)
     throw new Error('token未設定');
 exports.uploadImage = async (imagepath) => {
