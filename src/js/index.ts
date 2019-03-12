@@ -10,7 +10,7 @@ import { createRankingImage } from './createImage';
 import { uploadImage, katsu } from './mastodon';
 
 // 起動時メッセージ
-logger.console.info('にょわー☆');
+logger.system.info(`にょわー☆(${process.pid})`);
 
 const getRanking = async () => {
   try {
@@ -31,7 +31,7 @@ const getRanking = async () => {
   }
 };
 
-getRanking();
+// getRanking();
 
 // 0時0分に実行
 new CronJob('0 0 * * *', getRanking).start();
