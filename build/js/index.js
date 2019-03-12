@@ -9,8 +9,20 @@ const cron_1 = require("cron");
 const createImage_1 = require("./createImage");
 const mastodon_1 = require("./mastodon");
 // 起動時メッセージ
-logger_1.default.console.info('にょわー☆');
-const getRanking = async () => {
+logger_1.default.system.info(`にょわー☆(${process.pid})`);
+let beforeRankList = {
+    all: [],
+    cute: [],
+    cool: [],
+    sexy: [],
+    pop: [],
+    date: ''
+};
+/**
+ * ランキングを取得してカツする
+ * @param fetchOnly beforeに入れるだけ
+ */
+const getRanking = async (fetchOnly) => {
     try {
         // スプレッドシートからランキング取得
         const getOpt = {
@@ -20,17 +32,21 @@ const getRanking = async () => {
         };
         const response = await rp(getOpt);
         logger_1.default.access.debug(JSON.stringify(response, null, '  '));
-        const filepath = await createImage_1.createRankingImage(response);
-        const imagepath = await mastodon_1.uploadImage(filepath);
-        await mastodon_1.katsu('.', [imagepath.id]);
+        if (!fetchOnly) {
+            const filepath = await createImage_1.createRankingImage(beforeRankList, response);
+            const imagepath = await mastodon_1.uploadImage(filepath);
+            await mastodon_1.katsu('.', [imagepath.id]);
+        }
+        beforeRankList = response;
     }
     catch (e) {
         logger_1.default.system.error(e);
     }
 };
-getRanking();
 // 0時0分に実行
 new cron_1.CronJob('0 0 * * *', getRanking).start();
+// 初回起動はデータの取得だけ行う
+getRanking(true);
 /**
  * シャットダウン処理
  *

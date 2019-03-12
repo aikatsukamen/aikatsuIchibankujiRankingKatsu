@@ -12,7 +12,20 @@ import { uploadImage, katsu } from './mastodon';
 // 起動時メッセージ
 logger.system.info(`にょわー☆(${process.pid})`);
 
-const getRanking = async () => {
+let beforeRankList: RankList = {
+  all: [],
+  cute: [],
+  cool: [],
+  sexy: [],
+  pop: [],
+  date: ''
+};
+
+/**
+ * ランキングを取得してカツする
+ * @param fetchOnly beforeに入れるだけ
+ */
+const getRanking = async (fetchOnly?: boolean) => {
   try {
     // スプレッドシートからランキング取得
     const getOpt = {
@@ -22,19 +35,24 @@ const getRanking = async () => {
     };
     const response: RankList = await rp(getOpt);
     logger.access.debug(JSON.stringify(response, null, '  '));
-    const filepath = await createRankingImage(response);
 
-    const imagepath = await uploadImage(filepath);
-    await katsu('.', [imagepath.id]);
+    if (!fetchOnly) {
+      const filepath = await createRankingImage(beforeRankList, response);
+      const imagepath = await uploadImage(filepath);
+      await katsu('.', [imagepath.id]);
+    }
+
+    beforeRankList = response;
   } catch (e) {
     logger.system.error(e);
   }
 };
 
-// getRanking();
-
 // 0時0分に実行
 new CronJob('0 0 * * *', getRanking).start();
+
+// 初回起動はデータの取得だけ行う
+getRanking(true);
 
 /**
  * シャットダウン処理

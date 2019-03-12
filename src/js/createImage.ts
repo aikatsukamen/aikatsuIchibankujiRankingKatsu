@@ -8,14 +8,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { RankList } from './types';
 
-// const testdata: RankList = require('../../test/test.json');
+// const beforedata: RankList = require('../../test/before.json');
+// const afterdata: RankList = require('../../test/after.json');
 
 /**
  * ランキングの画像を生成
  * @param rankList ランキング情報
  * @returns 生成した画像ファイルのフルパス
  */
-export const createRankingImage = async (rankList: RankList): Promise<string> => {
+export const createRankingImage = async (beforeRankList: RankList, rankList: RankList): Promise<string> => {
   /** 背景画像 */
   const backgroundImagePath = './static/images/background.png';
   const canvas = Canvas.createCanvas(1280, 720, 'png');
@@ -44,9 +45,9 @@ export const createRankingImage = async (rankList: RankList): Promise<string> =>
   ctx.textAlign = 'left';
   ctx.fillStyle = 'blue';
   ctx.font = `40px ${FONT_FAMILY_TITLE}`;
-  ctx.fillText('個人ランキング', 130, 170);
-  ctx.fillStyle = 'orange';
-  ctx.fillText('タイプ別トップ', 800, 170);
+  ctx.fillText('個人ランキング', 130, 140);
+  ctx.fillStyle = 'darkorange';
+  ctx.fillText('タイプ別トップ', 800, 140);
 
   // 更新時刻
   ctx.textAlign = 'right';
@@ -61,21 +62,35 @@ export const createRankingImage = async (rankList: RankList): Promise<string> =>
   ctx.fillStyle = 'black';
   ctx.font = `40px ${FONT_FAMILY_TEXT}`;
   const top10BaseGridX = 100;
-  const rankBaseGridY = 230;
+  const rankBaseGridY = 200;
 
   const allRank = rankList.all.sort(compareRank);
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 10; i++) {
     const rank = allRank[i];
-    if (rank.rank > 8) break; // なぜかうっかりTOP10じゃないやつが混じらないように
     // 順位
     ctx.fillText(`${rank.rank}位`, top10BaseGridX, rankBaseGridY + i * 55);
     // 名前
-    ctx.fillText(rank.name.slice(2), top10BaseGridX + 100, rankBaseGridY + i * 55);
+    ctx.fillText(rank.name.slice(2), top10BaseGridX + 150, rankBaseGridY + i * 55);
     // アイコン
     const iconpath = idolIconPath(rank.name);
     await Canvas.loadImage(iconpath).then(image => {
-      ctx.drawImage(image, top10BaseGridX + 350, rankBaseGridY + i * 55 - 35, 50, 50);
+      ctx.drawImage(image, top10BaseGridX + 400, rankBaseGridY + i * 55 - 35, 50, 50);
     });
+    // 前回からの変動
+    const lastRank = beforeRankList.all.filter(idol => idol.name === rank.name);
+    if (lastRank.length > 0) {
+      let changeIconPath: string;
+      if (rank.rank > lastRank[0].rank) {
+        changeIconPath = './static/images/up.png';
+      } else if (rank.rank < lastRank[0].rank) {
+        changeIconPath = './static/images/down.png';
+      } else {
+        changeIconPath = './static/images/same.png';
+      }
+      await Canvas.loadImage(changeIconPath).then(image => {
+        ctx.drawImage(image, top10BaseGridX + 90, rankBaseGridY + i * 55 - 35, 50, 50);
+      });
+    }
   }
 
   // タイプ別
@@ -110,6 +125,12 @@ export const createRankingImage = async (rankList: RankList): Promise<string> =>
   await Canvas.loadImage(popImagePath).then(image => {
     ctx.drawImage(image, 950, 450, 200, 200);
   });
+
+  // 注意書き
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'black';
+  ctx.font = `16px ${FONT_FAMILY_TITLE}`;
+  ctx.fillText('※順位変動は前日比', 1230, 700);
 
   // ファイル出力
   const fileImagePath = path.normalize(path.join(__dirname, `../../data/rank.png`));
@@ -177,4 +198,4 @@ const compareRank = (a: RankList['all'][0], b: RankList['all'][0]) => {
   return comparison;
 };
 
-// createRankingImage(testdata);
+// createRankingImage(beforedata, afterdata);
