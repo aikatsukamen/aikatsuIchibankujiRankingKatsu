@@ -45,4 +45,3 @@ const shutdown = () => {
 // 終了信号を受信
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
-//# sourceMappingURL=index.js.map

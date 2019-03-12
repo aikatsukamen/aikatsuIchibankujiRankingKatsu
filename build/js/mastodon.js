@@ -54,4 +54,3 @@ exports.katsu = async (text, imagepathList) => {
 //   const res = await uploadImage('./data/rank.png');
 //   console.log(res);
 // })();
-//# sourceMappingURL=mastodon.js.map

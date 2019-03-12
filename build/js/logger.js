@@ -12,4 +12,3 @@ exports.default = {
     access: log4js.getLogger('access'),
     console: log4js.getLogger('console')
 };
-//# sourceMappingURL=logger.js.map

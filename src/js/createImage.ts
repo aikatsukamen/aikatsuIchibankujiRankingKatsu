@@ -8,7 +8,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { RankList } from './types';
 
-// const testdata: RankList = require('../test/test.json');
+// const testdata: RankList = require('../../test/test.json');
 
 /**
  * ランキングの画像を生成
@@ -22,10 +22,12 @@ export const createRankingImage = async (rankList: RankList): Promise<string> =>
   const ctx = canvas.getContext('2d');
   if (!ctx) return ''; // typesafe
 
+  Canvas.registerFont('./static/font/DF-ReiGaSou-W7.ttc', { family: 'reigasou' });
+
   /** 見出し部分のフォント */
-  const FONT_FAMILY_TITLE = 'Meiryo';
+  const FONT_FAMILY_TITLE = 'reigasou';
   /** 見出し以外全般のフォント */
-  const FONT_FAMILY_TEXT = 'Meiryo';
+  const FONT_FAMILY_TEXT = 'reigasou';
 
   // 背景画像セット
   await Canvas.loadImage(backgroundImagePath).then(image => {
@@ -35,13 +37,13 @@ export const createRankingImage = async (rankList: RankList): Promise<string> =>
   // イベント名
   ctx.textAlign = 'left';
   ctx.fillStyle = 'deeppink';
-  ctx.font = `60px ${FONT_FAMILY_TITLE} bold`;
+  ctx.font = `50px ${FONT_FAMILY_TITLE}`;
   ctx.fillText('一番くじ アイカツ！総選挙 ランキング', 50, 70);
 
   // カテゴリ
   ctx.textAlign = 'left';
   ctx.fillStyle = 'blue';
-  ctx.font = `50px ${FONT_FAMILY_TITLE} bold`;
+  ctx.font = `40px ${FONT_FAMILY_TITLE}`;
   ctx.fillText('個人ランキング', 130, 170);
   ctx.fillStyle = 'orange';
   ctx.fillText('タイプ別トップ', 800, 170);
@@ -57,7 +59,7 @@ export const createRankingImage = async (rankList: RankList): Promise<string> =>
   // TOP8出力
   ctx.textAlign = 'left';
   ctx.fillStyle = 'black';
-  ctx.font = `40px ${FONT_FAMILY_TEXT} bold`;
+  ctx.font = `40px ${FONT_FAMILY_TEXT}`;
   const top10BaseGridX = 100;
   const rankBaseGridY = 230;
 
@@ -68,7 +70,7 @@ export const createRankingImage = async (rankList: RankList): Promise<string> =>
     // 順位
     ctx.fillText(`${rank.rank}位`, top10BaseGridX, rankBaseGridY + i * 55);
     // 名前
-    ctx.fillText(rank.name, top10BaseGridX + 100, rankBaseGridY + i * 55);
+    ctx.fillText(rank.name.slice(2), top10BaseGridX + 100, rankBaseGridY + i * 55);
     // アイコン
     const iconpath = idolIconPath(rank.name);
     await Canvas.loadImage(iconpath).then(image => {
