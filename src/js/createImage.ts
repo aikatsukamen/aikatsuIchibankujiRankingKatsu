@@ -80,9 +80,9 @@ export const createRankingImage = async (beforeRankList: RankList, rankList: Ran
     const lastRank = beforeRankList.all.filter(idol => idol.name === rank.name);
     if (lastRank.length > 0) {
       let changeIconPath: string;
-      if (rank.rank > lastRank[0].rank) {
+      if (rank.rank < lastRank[0].rank) {
         changeIconPath = './static/images/up.png';
-      } else if (rank.rank < lastRank[0].rank) {
+      } else if (rank.rank > lastRank[0].rank) {
         changeIconPath = './static/images/down.png';
       } else {
         changeIconPath = './static/images/same.png';
